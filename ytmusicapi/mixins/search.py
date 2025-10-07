@@ -5,6 +5,29 @@ from ytmusicapi.parsers.search import *
 from ytmusicapi.type_alias import JsonList, ParseFuncType, RequestFuncType
 
 
+
+
+##########################################
+def find_key(json_data, target_key):
+    if isinstance(json_data, dict):
+        for key, value in json_data.items():
+            if key == target_key:
+                return value
+            result = find_key(value, target_key)
+            if result is not None:
+                return result
+    elif isinstance(json_data, list):
+        for item in json_data:
+            result = find_key(item, target_key)
+            if result is not None:
+                return result
+    return None
+#######################################
+
+
+
+
+
 class SearchMixin(MixinProtocol):
     def search(
         self,
@@ -193,6 +216,25 @@ class SearchMixin(MixinProtocol):
         else:
             results = response["contents"]
 
+
+########################################################
+        key = None
+        if filter == 'songs':   
+          key = find_key(
+              json_data=results,
+              target_key="correctedQueryEndpoint"
+              )
+        
+
+        if key is not None:
+            suggested_query = key['searchEndpoint']['query']
+        else:
+            suggested_query = None
+#########################################################
+
+
+
+        
         section_list = nav(results, SECTION_LIST)
 
         # no results
@@ -254,7 +296,7 @@ class SearchMixin(MixinProtocol):
                     )
                 )
 
-        return search_results
+        return search_results, suggested_query
 
     def get_search_suggestions(self, query: str, detailed_runs: bool = False) -> list[str] | JsonList:
         """
