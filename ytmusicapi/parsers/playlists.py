@@ -220,7 +220,7 @@ def parse_playlist_item(
 
     album = parse_song_album(data, album_index) if album_index is not None else None
 
-    views = get_item_text(data, 2) if is_album else None
+    views = get_item_text(data, 2)
 
     duration = None
     if "fixedColumns" in data:
