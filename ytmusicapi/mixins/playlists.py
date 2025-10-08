@@ -122,6 +122,22 @@ class PlaylistsMixin(MixinProtocol):
         header_data = nav(response, [*TWO_COLUMN_RENDERER, *TAB_CONTENT, *SECTION_LIST_ITEM])
         section_list = nav(response, [*TWO_COLUMN_RENDERER, "secondaryContents", *SECTION])
         playlist: JsonDict = {}
+
+        params = {
+            p["key"]: p["value"]
+            for p in response["responseContext"]["serviceTrackingParams"][0]["params"]
+        }
+        def bool_value(value_str:str) -> bool:
+            if value_str.lower() in ('true', '1'):
+                return True
+            elif value_str.lower() in ('false', '0'):
+                return False
+            else:
+                raise Exception("value_str isnt true or false")
+            
+        
+        playlist['logged_in'] = bool_value(params['logged_in'])
+        playlist['has_unlimited_entitlement'] = bool_value(params['has_unlimited_entitlement'])
         playlist["owned"] = EDITABLE_PLAYLIST_DETAIL_HEADER[0] in header_data
         if not playlist["owned"]:
             header = nav(header_data, RESPONSIVE_HEADER)
