@@ -42,9 +42,16 @@ def parse_album_header(response: JsonDict) -> JsonDict:
 
 def parse_album_header_2024(response: JsonDict) -> JsonDict:
     header = nav(response, [*TWO_COLUMN_RENDERER, *TAB_CONTENT, *SECTION_LIST_ITEM, *RESPONSIVE_HEADER])
+    
+    if "buttons" in header:
+        artist_id = get_artist_id(nav(header, ['buttons', 'menuRenderer']))
+    else:
+        artist_id = None
+        
     album = {
         "title": nav(header, TITLE_TEXT),
         "type": nav(header, SUBTITLE),
+        "artist_id": artist_id,
         "thumbnails": nav(header, THUMBNAILS),
         "isExplicit": nav(header, SUBTITLE_BADGE_LABEL, True) is not None,
     }
