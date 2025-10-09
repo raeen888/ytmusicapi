@@ -134,6 +134,12 @@ def parse_playlist_item(
     feedback_tokens = None
     library_status = None
 
+
+    if "menu" in data:
+        artist_id = get_artist_id(nav(data, ['menu', 'menuRenderer']))
+    else:
+        artist_id = None
+    
     # if the item has a menu, find its setVideoId
     if "menu" in data:
         for item in nav(data, MENU_ITEMS):
@@ -243,6 +249,7 @@ def parse_playlist_item(
         "videoId": videoId,
         "title": title,
         "artists": artists,
+        "artist_id": artist_id,
         "album": album,
         "likeStatus": like,
         "inLibrary": library_status,
