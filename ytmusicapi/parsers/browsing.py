@@ -65,7 +65,7 @@ def parse_album(result: JsonDict) -> JsonDict:
     album = {
         "title": nav(result, TITLE_TEXT),
         "year": nav(result, SUBTITLE, True),
-        "artists": [parse_id_name(x) for x in nav(result, ["subtitle", "runs"])[2:],
+        "artists": [parse_id_name(x) for x in nav(result, ["subtitle", "runs"])[2:]],
         "browseId": nav(result, TITLE + NAVIGATION_BROWSE_ID),
         "audioPlaylistId": parse_album_playlistid_if_exists(nav(result, THUMBNAIL_OVERLAY_NAVIGATION, True)),
         "thumbnails": nav(result, THUMBNAIL_RENDERER),
