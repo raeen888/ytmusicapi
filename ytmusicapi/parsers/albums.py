@@ -47,7 +47,7 @@ def parse_album_header_2024(response: JsonDict) -> JsonDict:
     menuRenderer = None
     for i in buttons:
         if 'menuRenderer' in i:
-            menuRenderer = i
+            menuRenderer = i.get('menuRenderer')
 
     artist_id = get_artist_id(menuRenderer) if menuRenderer else None
         
