@@ -116,3 +116,11 @@ def parse_id_name(sub_run: JsonDict | None) -> JsonDict:
         "id": nav(sub_run, NAVIGATION_BROWSE_ID, True),
         "name": nav(sub_run, ["text"], True),
     }
+
+def get_artist_id(menuRenderer:dict):
+    items:list[dict] = menuRenderer.get('items', [])
+    for item in items:
+        renderer = item.get('menuNavigationItemRenderer')
+        if renderer and renderer.get('icon', {}).get('iconType') == 'ARTIST':
+            return nav(renderer, ['navigationEndpoint', 'browseEndpoint', 'browseId'])
+    return None
