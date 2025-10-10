@@ -63,7 +63,7 @@ def parse_album_header_2024(response: JsonDict) -> JsonDict:
     album["description"] = nav(header, ["description", *DESCRIPTION_SHELF, *DESCRIPTION], True)
 
     album_info = parse_song_runs(header["subtitle"]["runs"][2:])
-    album_info["artists"] = [author] if (author := parse_base_header(header)["author"]) else None
+    album_info["artists"] = [parse_id_name(x) for x in nav(header, ["straplineTextOne", "runs"]) if x.get('text') and x.get('text').strip() not in (',', '&', '\u2022')]
     album.update(album_info)
 
     if len(header["secondSubtitle"]["runs"]) > 1:
