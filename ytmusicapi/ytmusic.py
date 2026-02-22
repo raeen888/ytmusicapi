@@ -13,6 +13,8 @@ from typing import Any
 import requests
 from requests import Response
 from requests.structures import CaseInsensitiveDict
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 
 from ytmusicapi.helpers import (
     SUPPORTED_LANGUAGES,
@@ -218,11 +220,28 @@ class YTMusicBase:
 
     def _prepare_session(self, requests_session: requests.Session | None) -> requests.Session:
         """Prepare requests session or use user-provided requests_session"""
-        if isinstance(requests_session, requests.Session):
-            return requests_session
-        self._session = requests.Session()
-        self._session.request = partial(self._session.request, timeout=30)  # type: ignore[method-assign]
-        return self._session
+
+        # Use provided session or create new one
+        session = requests_session if isinstance(requests_session, requests.Session) else requests.Session()
+
+        # Keep original default timeout behavior (30s)
+        session.request = partial(session.request, timeout=30)  # type: ignore[method-assign]
+
+        # Retry configuration (handles connection aborts + 5xx + 429)
+        retry_strategy = Retry(
+            total=5,
+            backoff_factor=0.5,
+            status_forcelist=[429, 500, 502, 503, 504],
+            allowed_methods=False,  # retry all methods including POST
+            raise_on_status=False,
+        )
+
+        adapter = HTTPAdapter(max_retries=retry_strategy)
+
+        session.mount("https://", adapter)
+        session.mount("http://", adapter)
+
+        return session
 
     def _send_request(self, endpoint: str, body: JsonDict, additionalParams: str = "") -> JsonDict:
         body.update(self.context)
